@@ -1,42 +1,82 @@
-# Frames-Metta
+# PersonCount
 
-Olá! Este projeto é um programa que utiliza TensorFlow.js e o modelo COCO-SSD para detectar pessoas em vídeos, processando cada frame individualmente, exibindo na tela um vídeo final e salvando arquivos JSON chamados "history" e "alerts", com os resultados do processamento. A aplicação foi desenvolvida em JavaScript/Node.js e utiliza a biblioteca Canvas para manipulação de imagens.
+Detecção de pessoas em vídeos com **React, SCSS, TensorFlow.js e COCO-SSD** no navegador. Um backend Express salva o histórico e os alertas em JSON.
 
-Pré-requisitos:
-1. Node.js instalado
-2. Navegador moderno como Chrome, Firefox, Edge...
+## Requisitos
 
-Instalação:
-1. Clone o repository ou baixe os arquivos. 
+- Node.js 22.12+ (ou Node.js 20.19+ compatível com Vite).
+- Conexão com a internet para a primeira carga dos pesos do COCO-SSD, hospedados em `storage.googleapis.com`.
 
-2. Vá até a pasta do projeto -> (cd c:\Users\Renata\Desktop\Frames-Metta)
+## Desenvolvimento
 
-3. Instale as dependências: 
-(cd src)
-(npm i express cors)
+Na raiz do projeto:
 
-Uso: 
-1. Inicie o Backend -> (node server.js)
+```sh
+npm install
+npm run dev
+```
 
-2. Certifique-se de que vê a mensagem no terminal: "Backend rodando na porta 3000".
+Abra o endereço exibido pelo Vite (normalmente `http://127.0.0.1:5173`). O comando inicia o Vite e o Express na porta 3000. As chamadas a `/upload-history` passam pelo proxy do Vite; não é necessário Live Server nem abrir o HTML diretamente.
 
-3. Abra o arquivo Index.html em seu navegador. Aguarde o alerta sinalizando o carregamento do COCO-SSD (aparecerá um alerta na tela). Para evitar problemas de CORS, use uma extensão como Live Server do VS Code.
+Os serviços também podem ser iniciados separadamente com `npm run dev:server` e `npm run dev:front`.
 
-4. Utilize o menu lateral (esquerda) para fazer upload de um vídeo. Clique no botão "Carregar vídeo" e selecione um vídeo salvo em seu computador. O nome do arquivo aparecerá abaixo do botão. Certifique-se de que é o arquivo que escolheu. Clique no botão "Processar". O resultado da detecção aparecerá na tela. Ao final de cada frame processado, os dados serão enviados ao backend.
+## Produção local
 
-Resultados:
-1. Os arquivos history.json e alerts.json serão salvos na pasta Output.
+```sh
+npm run build
+npm start
+```
 
-2. History.json contém id dos frames e contagem de pessoas por frame.
+Abra `http://localhost:3000`. O Express serve a pasta `dist`, gerada pelo Vite.
 
-3. Alerts.json contém apenas os frames em que a contagem atingiu ou superou o limiar estabelecido no backend.
+## Uso e resultados
 
-Configuração do limiar:
-1. Para configurar o limiar de corte para alerts.json, vá em server.js e altere a variável limiar.
+1. Aguarde o status **Modelo pronto**.
+2. Selecione um vídeo local e confira o nome exibido. Há um exemplo em `media/people-walking.mp4`.
+3. Clique em **Processar vídeo**. A visualização destaca pessoas com caixas vermelhas e porcentagens de confiança.
+4. Ao concluir a reprodução e o envio das contagens, consulte o gráfico.
 
-Contribuições: 
-Todas as contribuições e participações são bem-vindas!
+O vídeo permanece no navegador, com reprodução sem áudio para análise. Somente o histórico de contagens é enviado ao backend. A análise acompanha a reprodução e **não garante processar todos os quadros codificados**: `idFrame` é o índice da amostra de inferência, começando em zero. Não há rastreamento de pessoas únicas nem exportação de vídeo processado.
 
-Licença: MIT License.
+## Organização
 
-Créditos: Renata Barreto de Castro Fernandes. [Github: @renata-barreto](https://github.com/Renata-Barreto).
+```text
+front/
+  index.html
+  src/
+    App.jsx                    # Composição da tela
+    App.scss                   # Layout da aplicação
+    components/                # Cada componente com JSX e SCSS próprios
+      AppHeader/
+      VideoUpload/
+      ProcessingStatus/
+      DetectionView/
+      ResultsChart/
+    hooks/                     # Estado e ciclo de vida do React
+    services/                  # Modelo, processamento e comunicação HTTP
+    utils/                     # Desenho das detecções e configuração do gráfico
+    styles/                    # Variáveis Sass compartilhadas e estilos globais
+    test/                      # Configuração de testes
+src/
+  server.js                    # API Express e arquivos estáticos de produção
+  output/                      # Histórico e alertas existentes
+media/                         # Arquivos de exemplo originais
+vite.config.mjs                # React, Sass, proxy e testes
+```
+
+O frontend usa JavaScript/JSX e SCSS compilado pelo Vite. Os estilos dos componentes compartilham variáveis via `@use`; não há framework de CSS, roteador ou gerenciador global de estado. Modelo, vídeo, URLs temporárias e gráficos são liberados no encerramento de seus ciclos de vida, incluindo o replay de efeitos do React StrictMode.
+
+## Verificação
+
+```sh
+npm test
+npm run build
+```
+
+Os testes usam inferência simulada para verificar o contrato das contagens, ciclo de vida, erros e execuções repetidas sem baixar o modelo. A verificação manual com o vídeo de exemplo exige acesso aos pesos reais do COCO-SSD. As contagens reais variam com o dispositivo e a velocidade de inferência.
+
+## Créditos
+
+Renata Barreto de Castro Fernandes — [GitHub](https://github.com/Renata-Barreto).
+
+Licença declarada pelo projeto original: MIT.

@@ -1,0 +1,32 @@
+@use "../../styles/variables" as v;
+
+.results-chart {
+  padding: v.$space-lg;
+  background: v.$surface;
+  border: 1px solid v.$border;
+  border-radius: v.$radius;
+  &__plot {
+    position: relative;
+    min-width: 0;
+    height: 300px;
+  }
+  &__empty {
+    text-align: center;
+    padding: 30px 12px;
+    color: v.$muted;
+    font-size: 0.8rem;
+  }
+  &__caption {
+    color: v.$muted;
+    font-size: 0.72rem;
+    margin-top: 16px;
+  }
+}
+@media (max-width: v.$mobile) {
+  .results-chart {
+    padding: 20px;
+    &__plot {
+      height: 250px;
+    }
+  }
+}

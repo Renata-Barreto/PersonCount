@@ -40,4 +40,8 @@ app.post('/upload-history', (req, res) => {
     res.json({ status: 'ok' });
 });
 
+// The API and output formats stay unchanged. Serve the Vite build in production.
+const frontendDir = path.join(__dirname, '..', 'dist');
+app.use(express.static(frontendDir));
+
 app.listen(3000, () => console.log('Backend rodando na porta 3000'));

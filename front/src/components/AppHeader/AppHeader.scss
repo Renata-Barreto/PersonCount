@@ -1,0 +1,42 @@
+@use "../../styles/variables" as v;
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 40px;
+  border-bottom: 1px solid v.$border;
+  background: v.$surface;
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 1.05rem;
+    font-weight: 650;
+    text-decoration: none;
+    letter-spacing: -0.03em;
+  }
+  &__mark {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: v.$accent;
+    color: v.$surface;
+    font-size: 0.72rem;
+    letter-spacing: -0.03em;
+  }
+  &__caption {
+    font-size: 0.75rem;
+    color: v.$muted;
+  }
+}
+@media (max-width: v.$mobile) {
+  .app-header {
+    padding: 18px 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}

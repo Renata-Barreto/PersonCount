@@ -1,0 +1,68 @@
+@use "../../styles/variables" as v;
+
+.detection-view {
+  background: v.$surface;
+  padding: v.$space-lg;
+  border: 1px solid v.$border;
+  border-radius: v.$radius;
+  &__stage {
+    display: grid;
+    place-items: center;
+    min-height: 330px;
+    background: #eef1ed;
+    border-radius: 10px;
+    overflow: hidden;
+    canvas {
+      display: block;
+      max-width: 100%;
+      max-height: 65vh;
+      width: auto;
+      height: auto;
+    }
+  }
+  &__empty {
+    padding: 36px 20px;
+    text-align: center;
+    h3 {
+      margin-top: 18px;
+      font-size: 1rem;
+      font-weight: 550;
+    }
+    p {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: v.$muted;
+      max-width: 320px;
+    }
+  }
+  &__frame {
+    display: inline-grid;
+    place-items: center;
+    width: 58px;
+    height: 44px;
+    border: 1.5px solid #b8c5ba;
+    border-radius: 8px;
+    color: v.$muted;
+    font-size: 0.8rem;
+  }
+  &__caption {
+    margin-top: 16px;
+    font-size: 0.7rem;
+    color: v.$muted;
+    span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border: 1px solid #d44139;
+      margin-right: 7px;
+    }
+  }
+}
+@media (max-width: v.$mobile) {
+  .detection-view {
+    padding: 20px;
+    &__stage {
+      min-height: 240px;
+    }
+  }
+}

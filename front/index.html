@@ -1,43 +1,21 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; media-src 'self' blob:; script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:3000 http://127.0.0.1:3000 https://storage.googleapis.com;">
-
-    <title>Detectando pessoas e objetos</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poiret+One&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="/front/css/index.css">
-    
-
-</head>
-<body>
-
-    <div class="side">
-        <p>Menu</p>
-        <label for="videoInput" class="button">Selecionar vídeo</label>
-        <input class="input-file" type="file" id="videoInput" accept="video/*"></input>
-        <span id="fileName"></span>
-        
-        <button class="button" id="processarBtn">Processar</button>
-    </div>
-
-    <div class="content">
-        <h1>Detectando pessoas</h1>
-        <p>Por favor, aguarde o alerta de carregamento do programa para fazer o upload do seu vídeo...</p>
-        <p>Ao final, role a página para ver o gráfico gerado!</p>
-        <div id="video-area"></div>
-        <div class="graph-area">
-            <canvas id="graph" width="600" height="300"></canvas>
-        </div>
-    </div>
-
-    
-    <script src="../script.js"></script>
-</body>
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; media-src 'self' blob:; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws://127.0.0.1:* ws://localhost:* https://storage.googleapis.com; worker-src 'self' blob:;"
+    />
+    <meta
+      name="description"
+      content="Selecione um vídeo e visualize a detecção de pessoas e o histórico de contagens."
+    />
+    <title>PersonCount · Detecção de pessoas</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
