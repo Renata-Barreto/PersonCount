@@ -1,0 +1,33 @@
+@use "../../styles/variables" as v;
+
+.source-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: v.$space-md;
+  background: v.$accent-soft;
+  border: 1px solid v.$border;
+  border-radius: 10px;
+  &__option {
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: v.$muted;
+    font-size: 0.82rem;
+    font-weight: 600;
+    &--active {
+      background: v.$surface;
+      color: v.$ink;
+      box-shadow: 0 1px 3px rgba(32, 44, 40, 0.12);
+    }
+    &:focus-visible {
+      outline: 3px solid v.$accent;
+      outline-offset: 2px;
+    }
+    &:disabled:not(&--active) {
+      opacity: 0.5;
+    }
+  }
+}

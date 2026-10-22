@@ -9,7 +9,15 @@ const messages = {
   error: "Não foi possível concluir a análise.",
 };
 
+const webcamMessages = {
+  idle: "Ligue a webcam para detectar pessoas em tempo real.",
+  starting: "Aguardando a permissão e o início da câmera…",
+  running: "Detectando pessoas em tempo real. Nada é salvo.",
+  error: "Não foi possível usar a webcam.",
+};
+
 export default function ProcessingStatus({
+  mode = "video",
   modelStatus,
   modelProgress = 0,
   modelBackend,
@@ -44,7 +52,7 @@ export default function ProcessingStatus({
         <p>
           {modelStatus === "loading"
             ? "A primeira carga pode levar alguns instantes."
-            : messages[status]}
+            : (mode === "webcam" ? webcamMessages : messages)[status]}
         </p>
         {status === "complete" && !saveError && (
           <p>Contagens salvas no servidor.</p>

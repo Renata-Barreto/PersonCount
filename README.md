@@ -51,6 +51,10 @@ Abra `http://localhost:3000` (ou defina `PORT`). O Express serve a pasta `dist`,
 
 O vídeo permanece no navegador, com reprodução sem áudio para análise. Somente o histórico de contagens é enviado ao backend. A análise acompanha a reprodução e **não garante processar todos os quadros codificados**: `idFrame` é o índice da amostra de inferência, começando em zero. Não há rastreamento de pessoas únicas nem exportação de vídeo processado.
 
+### Webcam
+
+Alterne para **Webcam** acima dos controles, clique em **Ligar webcam** e permita o acesso quando o navegador pedir. As pessoas são detectadas em tempo real, com caixas na imagem e a contagem atual ao lado. Neste modo **não há gráfico, nada é enviado ao backend e nada é salvo**; ao parar, a câmera é liberada e o último quadro é apagado. A câmera só funciona em `localhost` ou HTTPS. A confiança mínima pode ser ajustada com a câmera ligada.
+
 ### Ajustes na tela
 
 - **Confiança mínima** (10–90%, padrão 40%): detecções abaixo disso são descartadas.
@@ -78,6 +82,8 @@ front/
       AppHeader/
       VideoUpload/
       DetectionSettings/
+      SourceSwitch/
+      WebcamControls/
       ProcessingStatus/
       DetectionView/
       ResultsChart/
