@@ -1,5 +1,6 @@
 import AppHeader from "./components/AppHeader/AppHeader";
 import VideoUpload from "./components/VideoUpload/VideoUpload";
+import DetectionSettings from "./components/DetectionSettings/DetectionSettings";
 import ProcessingStatus from "./components/ProcessingStatus/ProcessingStatus";
 import DetectionView from "./components/DetectionView/DetectionView";
 import ResultsChart from "./components/ResultsChart/ResultsChart";
@@ -8,13 +9,21 @@ import { useVideoProcessing } from "./hooks/useVideoProcessing";
 import "./App.scss";
 
 export default function App() {
-  const { model, status: modelStatus, progress: modelProgress } = usePersonModel();
+  const {
+    model,
+    status: modelStatus,
+    progress: modelProgress,
+  } = usePersonModel();
   const {
     file,
     selectFile,
     process,
     canvasRef,
+    overlayRef,
     history,
+    settings,
+    setSettings,
+    runSettings,
     status,
     error,
     saveError,
@@ -46,9 +55,15 @@ export default function App() {
               modelReady={modelStatus === "ready"}
               canProcess={Boolean(file && model && !isBusy)}
             />
+            <DetectionSettings
+              settings={settings}
+              onChange={setSettings}
+              disabled={isBusy}
+            />
             <ProcessingStatus
               modelStatus={modelStatus}
               modelProgress={modelProgress}
+              modelBackend={model?.backend}
               status={status}
               error={error}
               saveError={saveError}
@@ -59,13 +74,20 @@ export default function App() {
             </p>
           </aside>
           <div className="workspace__results">
-            <DetectionView canvasRef={canvasRef} status={status} />
-            <ResultsChart history={history} />
+            <DetectionView
+              canvasRef={canvasRef}
+              overlayRef={overlayRef}
+              status={status}
+            />
+            <ResultsChart
+              history={history}
+              alertThreshold={runSettings.alertThreshold}
+            />
           </div>
         </div>
       </main>
       <footer className="app__footer">
-        PersonCount <span>Detecção com TensorFlow.js e COCO-SSD</span>
+        PersonCount <span>Detecção com YOLOv8 e ONNX Runtime Web</span>
       </footer>
     </div>
   );

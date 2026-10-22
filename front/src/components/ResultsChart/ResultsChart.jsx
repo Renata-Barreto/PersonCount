@@ -24,13 +24,16 @@ Chart.register(
   Legend,
 );
 
-export default function ResultsChart({ history }) {
+export default function ResultsChart({ history, alertThreshold }) {
   const canvasRef = useRef(null);
   useEffect(() => {
     if (!history?.length) return;
-    const chart = new Chart(canvasRef.current, createChartConfig(history));
+    const chart = new Chart(
+      canvasRef.current,
+      createChartConfig(history, alertThreshold),
+    );
     return () => chart.destroy();
-  }, [history]);
+  }, [history, alertThreshold]);
   return (
     <section className="results-chart" aria-labelledby="chart-title">
       <div className="section-heading">
@@ -49,8 +52,9 @@ export default function ResultsChart({ history }) {
             />
           </div>
           <p className="results-chart__caption">
-            Cada amostra corresponde a uma detecção durante a reprodução; nem
-            todos os quadros do arquivo são analisados.
+            Cada amostra corresponde a uma detecção durante a reprodução,
+            posicionada no tempo do vídeo; nem todos os quadros do arquivo são
+            analisados.
           </p>
         </>
       ) : (

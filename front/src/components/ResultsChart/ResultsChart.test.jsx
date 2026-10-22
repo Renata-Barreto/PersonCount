@@ -37,6 +37,21 @@ describe("results chart lifecycle", () => {
     const config = Chart.mock.calls.at(-1)[1];
     expect(config.data.labels).toEqual([0, 1]);
     expect(config.data.datasets[0].data).toEqual([2, 0]);
+    expect(config.data.datasets).toHaveLength(1);
+    rerender(
+      <StrictMode>
+        <ResultsChart
+          history={[
+            { idFrame: 0, tempo: 0, personCount: 2 },
+            { idFrame: 1, tempo: 75.4, personCount: 5 },
+          ]}
+          alertThreshold={4}
+        />
+      </StrictMode>,
+    );
+    const timed = Chart.mock.calls.at(-1)[1];
+    expect(timed.data.labels).toEqual(["0:00", "1:15"]);
+    expect(timed.data.datasets[1].data).toEqual([4, 4]);
     rerender(
       <StrictMode>
         <ResultsChart history={null} />

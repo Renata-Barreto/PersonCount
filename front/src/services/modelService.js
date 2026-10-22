@@ -1,24 +1,68 @@
-import * as tf from "@tensorflow/tfjs";
-import { ObjectDetection } from "@tensorflow-models/coco-ssd";
-
-const BASE = "lite_mobilenet_v2";
-const MODEL_URL = `https://storage.googleapis.com/tfjs-models/savedmodel/ssd${BASE}/model.json`;
-
-// coco-ssd's load() hides the download, so load the graph ourselves to get
-// progress and hand it to the detector (the same steps its load() performs).
-async function loadWithProgress(onProgress) {
-  const detector = new ObjectDetection(BASE, MODEL_URL);
-  detector.model = await tf.loadGraphModel(MODEL_URL, { onProgress });
-  const warmup = tf.zeros([300, 300, 3], "int32");
-  try {
-    await detector.detect(warmup);
-  } finally {
-    warmup.dispose();
-  }
-  return detector;
-}
+export const MODEL_URL = "/models/yolov8n.onnx";
 
 let resource;
+
+// Inference runs in a Web Worker so the page stays responsive. The returned
+// object keeps the `detect(canvas, options)` shape the processor relies on.
+function startWorker(onProgress) {
+  const worker = new Worker(new URL("./detector.worker.js", import.meta.url), {
+    type: "module",
+  });
+  const pending = new Map();
+  let nextId = 0;
+  let failure;
+
+  function fail(error) {
+    failure = error;
+    pending.forEach(({ reject }) => reject(error));
+    pending.clear();
+  }
+
+  const promise = new Promise((resolve, reject) => {
+    worker.onmessage = ({ data }) => {
+      if (data.type === "progress") onProgress(data.value);
+      else if (data.type === "ready")
+        resolve({
+          backend: data.backend,
+          detect(canvas, { minScore } = {}) {
+            if (failure) return Promise.reject(failure);
+            return createImageBitmap(canvas).then(
+              (bitmap) =>
+                new Promise((done, fault) => {
+                  const id = nextId++;
+                  pending.set(id, { resolve: done, reject: fault });
+                  worker.postMessage({ type: "detect", id, bitmap, minScore }, [
+                    bitmap,
+                  ]);
+                }),
+            );
+          },
+          dispose() {
+            worker.postMessage({ type: "dispose" });
+            worker.terminate();
+            fail(new Error("O modelo foi encerrado."));
+          },
+        });
+      else if (data.type === "load-error") {
+        worker.terminate();
+        reject(new Error(data.message));
+      } else if (data.type === "result") {
+        const entry = pending.get(data.id);
+        pending.delete(data.id);
+        if (data.error) entry?.reject(new Error(data.error));
+        else entry?.resolve(data.people);
+      }
+    };
+    worker.onerror = (event) => {
+      const error = new Error(event.message || "Falha no worker do modelo.");
+      worker.terminate();
+      reject(error);
+      fail(error);
+    };
+    worker.postMessage({ type: "load", modelUrl: MODEL_URL });
+  });
+  return promise;
+}
 
 // Share one load across consumers, including StrictMode's setup/cleanup replay.
 export function acquireModel(onProgress) {
@@ -33,7 +77,7 @@ export function acquireModel(onProgress) {
       created.progress = fraction;
       created.listeners.forEach((listener) => listener(fraction));
     };
-    created.promise = tf.ready().then(() => loadWithProgress(report));
+    created.promise = startWorker(report);
     resource = created;
   }
   const current = resource;

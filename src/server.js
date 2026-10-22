@@ -3,16 +3,20 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 const cors = require('cors');
+const compression = require('compression');
 const outputDir = path.join(__dirname, 'output');
 
 app.use(cors());
+app.use(compression());
 app.use(express.json());
 
 
 app.post('/upload-history', (req, res) => {
     
     const history = req.body;
-    const limiar = 3; // Defina o limiar de corte para alerts
+    // Limiar de corte para alerts: ?limiar=N na URL, ou 3 por padrão
+    const pedido = Number(req.query.limiar);
+    const limiar = Number.isInteger(pedido) && pedido >= 1 ? pedido : 3;
 
     // Gerando o history.json
     const historyJson = history;
@@ -25,7 +29,8 @@ app.post('/upload-history', (req, res) => {
             alerts.push({
                 idFrame: frame.idFrame,
                 idAlert: idAlert++,
-                count: frame.personCount
+                count: frame.personCount,
+                ...(frame.tempo !== undefined && { tempo: frame.tempo })
             });
         }
     });
@@ -44,4 +49,5 @@ app.post('/upload-history', (req, res) => {
 const frontendDir = path.join(__dirname, '..', 'dist');
 app.use(express.static(frontendDir));
 
-app.listen(3000, () => console.log('Backend rodando na porta 3000'));
+const porta = process.env.PORT || 3000;
+app.listen(porta, () => console.log(`Backend rodando na porta ${porta}`));

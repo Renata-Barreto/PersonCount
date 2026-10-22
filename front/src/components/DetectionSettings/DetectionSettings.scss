@@ -1,0 +1,45 @@
+@use "../../styles/variables" as v;
+
+.detection-settings {
+  padding: v.$space-lg;
+  background: v.$surface;
+  border: 1px solid v.$border;
+  border-top: 0;
+  h2 {
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+  &__field {
+    display: grid;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 550;
+    & + & {
+      margin-top: 18px;
+    }
+    strong {
+      float: right;
+      color: v.$accent;
+    }
+    small {
+      font-weight: 400;
+      color: v.$muted;
+    }
+    input[type="range"] {
+      accent-color: v.$accent;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid v.$border;
+      border-radius: 8px;
+      background: v.$background;
+      color: v.$ink;
+      font: inherit;
+    }
+    input:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}

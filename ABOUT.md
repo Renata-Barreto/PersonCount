@@ -7,13 +7,13 @@ A solução é composta por um frontend web (HTML, CSS, JS) e um backend Node.js
 
 Abordagens:
 
-1. Frontend: Utiliza TensorFlow.js e o modelo COCO-SSD para detecção de pessoas em tempo real no navegador. O usuário seleciona um vídeo, que é processado frame a frame. Bounding boxes são desenhadas sobre as pessoas detectadas. A cada frame processado, a contagem de pessoas é enviada ao backend via fetch.
+1. Frontend: Utiliza ONNX Runtime Web e o modelo YOLOv8 para detecção de pessoas em tempo real no navegador. O usuário seleciona um vídeo, que é processado frame a frame. Bounding boxes são desenhadas sobre as pessoas detectadas. A cada frame processado, a contagem de pessoas é enviada ao backend via fetch.
 
 2. Backend: Implementado em Node.js com Express. Recebe os dados do frontend e salva dois arquivos JSON. O limiar de alerta pode ser facilmente ajustado no código.
 
 Justificativas:
 
-1. TensorFlow.js + COCO-SSD:
+1. ONNX Runtime Web + YOLOv8:
 
     Permite rodar a detecção de pessoas diretamente no navegador, sem necessidade de instalar bibliotecas pesadas no backend ou depender de GPUs.
 

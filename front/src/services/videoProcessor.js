@@ -1,4 +1,4 @@
-import { nextFrame } from "@tensorflow/tfjs";
+import { nextFrame } from "../utils/nextFrame";
 import { uploadHistory } from "./historyApi";
 import { getPeople, drawDetections } from "../utils/detections";
 
@@ -37,9 +37,12 @@ export async function processVideo({
   file,
   model,
   canvas,
+  overlay,
   signal,
   onStatus,
   onSaveError,
+  minScore,
+  alertThreshold,
 }) {
   signal.throwIfAborted();
   const video = document.createElement("video");
@@ -59,7 +62,12 @@ export async function processVideo({
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
-    if (!ctx)
+    // Boxes live on their own layer so drawing the next video frame never
+    // wipes them before they are painted; they stay until the next detection.
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    const overlayCtx = overlay.getContext("2d");
+    if (!ctx || !overlayCtx)
       throw new Error(
         "Seu navegador não oferece suporte à visualização do vídeo.",
       );
@@ -72,19 +80,25 @@ export async function processVideo({
         throw new Error(
           "O navegador não conseguiu continuar a reprodução deste vídeo.",
         );
+      const tempo = Math.round(video.currentTime * 100) / 100;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const predictions = await model.detect(canvas);
+      const predictions = await model.detect(canvas, { minScore });
       signal.throwIfAborted();
       const people = getPeople(predictions);
-      history.push({ idFrame: history.length, personCount: people.length });
-      drawDetections(ctx, people);
+      history.push({
+        idFrame: history.length,
+        tempo,
+        personCount: people.length,
+      });
+      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+      drawDetections(overlayCtx, people);
       // Keep the existing full-history payload for each sample, in order.
       // Uploads run independently of inference and finish before the next run.
       const snapshot = history.slice();
       saves = saves
         .then(() => {
           signal.throwIfAborted();
-          return uploadHistory(snapshot, signal);
+          return uploadHistory(snapshot, signal, { alertThreshold });
         })
         .catch(() => {
           if (!signal.aborted) onSaveError();

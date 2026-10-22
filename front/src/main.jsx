@@ -8,3 +8,10 @@ createRoot(document.getElementById("root")).render(
     <App />
   </StrictMode>,
 );
+
+// Offline cache for the model files; only in the production build, where
+// hashed asset names make cache-first safe.
+if (import.meta.env.PROD && "serviceWorker" in navigator)
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });

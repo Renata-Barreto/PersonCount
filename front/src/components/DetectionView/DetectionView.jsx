@@ -1,6 +1,6 @@
 import "./DetectionView.scss";
 
-export default function DetectionView({ canvasRef, status }) {
+export default function DetectionView({ canvasRef, overlayRef, status }) {
   const hasFrames = ["processing", "saving", "complete"].includes(status);
   return (
     <section className="detection-view" aria-labelledby="detection-title">
@@ -18,6 +18,12 @@ export default function DetectionView({ canvasRef, status }) {
           ref={canvasRef}
           hidden={!hasFrames}
           aria-label="Quadros do vídeo com caixas vermelhas e confiança das pessoas detectadas"
+        />
+        <canvas
+          ref={overlayRef}
+          className="detection-view__overlay"
+          hidden={!hasFrames}
+          aria-hidden="true"
         />
         {!hasFrames && (
           <div className="detection-view__empty">

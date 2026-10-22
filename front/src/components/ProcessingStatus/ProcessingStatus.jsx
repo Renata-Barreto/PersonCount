@@ -12,6 +12,7 @@ const messages = {
 export default function ProcessingStatus({
   modelStatus,
   modelProgress = 0,
+  modelBackend,
   status,
   error,
   saveError,
@@ -19,7 +20,7 @@ export default function ProcessingStatus({
   const percent = Math.round(modelProgress * 100);
   const modelMessages = {
     loading: `Carregando modelo… ${percent}%`,
-    ready: "Modelo pronto",
+    ready: `Modelo pronto${modelBackend ? ` (${modelBackend === "gpu" ? "GPU" : "CPU"})` : ""}`,
     error: "Falha ao carregar modelo",
   };
   return (

@@ -20,6 +20,15 @@ describe("existing history API contract", () => {
     );
   });
 
+  it("passes the alert threshold as a query parameter, keeping the body", async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ status: "ok" }) });
+    vi.stubGlobal("fetch", fetch);
+    await uploadHistory([], undefined, { alertThreshold: 5 });
+    expect(fetch.mock.calls[0][0]).toBe("/upload-history?limiar=5");
+  });
+
   it("reports HTTP errors", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
     await expect(uploadHistory([])).rejects.toThrow("Não foi possível salvar");

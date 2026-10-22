@@ -18,7 +18,11 @@
       max-height: 65vh;
       width: auto;
       height: auto;
+      grid-area: 1 / 1;
     }
+  }
+  &__overlay {
+    pointer-events: none;
   }
   &__empty {
     padding: 36px 20px;

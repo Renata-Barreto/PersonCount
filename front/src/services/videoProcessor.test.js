@@ -1,14 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { processVideo } from "./videoProcessor";
 import { uploadHistory } from "./historyApi";
-import { nextFrame } from "@tensorflow/tfjs";
+import { nextFrame } from "../utils/nextFrame";
 
-vi.mock("@tensorflow/tfjs", () => ({ nextFrame: vi.fn() }));
+vi.mock("../utils/nextFrame", () => ({ nextFrame: vi.fn() }));
 vi.mock("./historyApi", () => ({ uploadHistory: vi.fn() }));
 
 describe("browser video processing", () => {
   let video;
   let canvas;
+  let overlay;
   let controller;
   let options;
 
@@ -18,6 +19,7 @@ describe("browser video processing", () => {
       readyState: { value: 2, configurable: true },
       videoWidth: { value: 640 },
       videoHeight: { value: 360 },
+      currentTime: { value: 0, writable: true },
       ended: { value: false, writable: true },
       paused: { value: true, writable: true },
     });
@@ -40,11 +42,20 @@ describe("browser video processing", () => {
       stroke: vi.fn(),
       fillText: vi.fn(),
     };
+    const overlayCtx = {
+      clearRect: vi.fn(),
+      beginPath: vi.fn(),
+      rect: vi.fn(),
+      stroke: vi.fn(),
+      fillText: vi.fn(),
+    };
     canvas = { getContext: () => ctx };
+    overlay = { getContext: () => overlayCtx };
     controller = new AbortController();
     options = {
       file: new File(["video"], "test.mp4", { type: "video/mp4" }),
       canvas,
+      overlay,
       signal: controller.signal,
       onStatus: vi.fn(),
       onSaveError: vi.fn(),
@@ -72,15 +83,15 @@ describe("browser video processing", () => {
     });
     const history = await processVideo(options);
     expect(history).toEqual([
-      { idFrame: 0, personCount: 1 },
-      { idFrame: 1, personCount: 1 },
+      { idFrame: 0, tempo: 0, personCount: 1 },
+      { idFrame: 1, tempo: 0, personCount: 1 },
     ]);
     expect(uploadHistory.mock.calls.map(([snapshot]) => snapshot)).toEqual([
       [history[0]],
       history,
     ]);
-    expect(canvas.getContext().rect).toHaveBeenCalledTimes(2);
-    expect(canvas.getContext().fillText).toHaveBeenCalledWith(
+    expect(overlay.getContext().rect).toHaveBeenCalledTimes(2);
+    expect(overlay.getContext().fillText).toHaveBeenCalledWith(
       "person - 96%",
       10,
       15,
@@ -90,9 +101,29 @@ describe("browser video processing", () => {
       "saving",
     ]);
     expect(canvas.width).toBe(640);
+    expect(overlay.width).toBe(640);
+    expect(overlay.getContext().clearRect).toHaveBeenCalledTimes(2);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:test");
     expect(video.pause).toHaveBeenCalled();
     expect(video.getAttribute("src")).toBeNull();
+  });
+
+  it("records the video time and forwards the chosen thresholds", async () => {
+    video.currentTime = 1.236;
+    options.minScore = 0.7;
+    options.alertThreshold = 5;
+    const history = await processVideo(options);
+    expect(history[0].tempo).toBe(1.24);
+    expect(options.model.detect).toHaveBeenCalledWith(canvas, {
+      minScore: 0.7,
+    });
+    expect(uploadHistory).toHaveBeenCalledWith(
+      [history[0]],
+      controller.signal,
+      {
+        alertThreshold: 5,
+      },
+    );
   });
 
   it("keeps zero-count samples and waits for the final save", async () => {
@@ -113,13 +144,15 @@ describe("browser video processing", () => {
     );
     expect(finished).toBe(false);
     finishSave({ status: "ok" });
-    expect(await processing).toEqual([{ idFrame: 0, personCount: 0 }]);
+    expect(await processing).toEqual([
+      { idFrame: 0, tempo: 0, personCount: 0 },
+    ]);
   });
 
   it("retains analysis results when persistence fails", async () => {
     uploadHistory.mockRejectedValue(new Error("offline"));
     expect(await processVideo(options)).toEqual([
-      { idFrame: 0, personCount: 0 },
+      { idFrame: 0, tempo: 0, personCount: 0 },
     ]);
     expect(options.onSaveError).toHaveBeenCalledOnce();
   });
@@ -149,7 +182,7 @@ describe("browser video processing", () => {
       name: "AbortError",
     });
     expect(uploadHistory).not.toHaveBeenCalled();
-    expect(canvas.getContext().rect).not.toHaveBeenCalled();
+    expect(overlay.getContext().rect).not.toHaveBeenCalled();
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:test");
   });
 });

@@ -2,24 +2,27 @@
   "name": "person-count",
   "version": "1.0.0",
   "private": true,
-  "description": "Detecção de pessoas em vídeos com React e TensorFlow.js",
+  "description": "Detecção de pessoas em vídeos com React e YOLOv8 no navegador",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
+    "start": "node src/server.js",
+    "build": "vite build --config vite.config.mjs",
+    "test": "vitest run",
     "dev": "concurrently -k -n server,front \"npm:dev:server\" \"npm:dev:front\"",
     "dev:server": "node --watch src/server.js",
     "dev:front": "vite --config vite.config.mjs",
-    "build": "vite build --config vite.config.mjs",
-    "start": "node src/server.js",
-    "test": "vitest run"
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
   },
   "dependencies": {
-    "@tensorflow-models/coco-ssd": "^2.2.3",
-    "@tensorflow/tfjs": "^4.22.0",
     "chart.js": "^4.4.8",
+    "compression": "^1.8.2",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "onnxruntime-web": "^1.30.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

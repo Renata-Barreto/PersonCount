@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { acquireModel } from "../services/modelService";
 
 export function usePersonModel() {
-  const [state, setState] = useState({ model: null, status: "loading", progress: 0 });
+  const [state, setState] = useState({
+    model: null,
+    status: "loading",
+    progress: 0,
+  });
   useEffect(() => {
     let active = true;
     const resource = acquireModel((progress) => {

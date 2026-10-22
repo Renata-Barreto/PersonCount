@@ -1,5 +1,6 @@
-export async function uploadHistory(history, signal) {
-  const response = await fetch("/upload-history", {
+export async function uploadHistory(history, signal, { alertThreshold } = {}) {
+  const query = alertThreshold ? `?limiar=${Number(alertThreshold)}` : "";
+  const response = await fetch(`/upload-history${query}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(history),
